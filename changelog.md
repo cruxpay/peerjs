@@ -1,7 +1,33 @@
 # Change Log
 
-All notable changes to this project will be documented in this file.
+All notable changes will be documented in this file.
 
+<a name="1.1.0"></a>
+
+## 1.1.0 (2019-09-16)
+
+- removed: deprecated `RtpDataChannels` and `DtlsSrtpKeyAgreement` options
+- removed: grunt from deps, upgrade deps versions
+- removed: Reliable dep because modern browsers supports `RTCDataChannel.ordered` property
+
+- added: TURN server to default config
+
+- fixed: emit error message, then destory/disconnect when error occured
+- fixed: use `peerjs-js-binarypack` instead of `js-binarypack`
+- fixed: sending large files via DataConnection #121
+
+<a name="1.0.4"></a>
+
+## 1.0.4 (2019-08-31)
+
+- fixed: 'close' event for DataConnection #568
+
+<a name="1.0.3"></a>
+
+## 1.0.3 (2019-08-21)
+
+- add pingInterval option
+  
 <a name="1.0.2"></a>
 
 ## 1.0.2 (2019-07-20)

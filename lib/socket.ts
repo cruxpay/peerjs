@@ -7,13 +7,11 @@ import { SocketEventType, ServerMessageType } from "./enums";
  * possible connection for peers.
  */
 export class Socket extends EventEmitter {
-  private readonly WEB_SOCKET_PING_INTERVAL = 20000;//ms
-
   private _disconnected = false;
-  private _id: string;
+  private _id?: string;
   private _messagesQueue: Array<any> = [];
   private _wsUrl: string;
-  private _socket: WebSocket;
+  private _socket?: WebSocket;
   private _wsPingTimer: any;
 
   constructor(
@@ -22,6 +20,7 @@ export class Socket extends EventEmitter {
     port: number,
     path: string,
     key: string,
+    private readonly pingInterval: number = 5000,
   ) {
     super();
 
@@ -52,6 +51,7 @@ export class Socket extends EventEmitter {
 
       try {
         data = JSON.parse(event.data);
+        logger.log("Server message received:", data);
       } catch (e) {
         logger.log("Invalid server message", event.data);
         return;
@@ -61,7 +61,7 @@ export class Socket extends EventEmitter {
     };
 
     this._socket.onclose = (event) => {
-      logger.log("Socket closed.", event);;
+      logger.log("Socket closed.", event);
 
       this._disconnected = true;
       clearTimeout(this._wsPingTimer);
@@ -83,7 +83,9 @@ export class Socket extends EventEmitter {
   }
 
   private _scheduleHeartbeat(): void {
-    this._wsPingTimer = setTimeout(() => { this._sendHeartbeat() }, this.WEB_SOCKET_PING_INTERVAL);
+    this._wsPingTimer = setTimeout(() => {
+      this._sendHeartbeat();
+    }, this.pingInterval);
   }
 
   private _sendHeartbeat(): void {
@@ -94,14 +96,14 @@ export class Socket extends EventEmitter {
 
     const message = JSON.stringify({ type: ServerMessageType.Heartbeat });
 
-    this._socket.send(message);
+    this._socket!.send(message);
 
     this._scheduleHeartbeat();
   }
 
   /** Is the websocket currently open? */
   private _wsOpen(): boolean {
-    return !!this._socket && this._socket.readyState == 1;
+    return !!this._socket && this._socket.readyState === 1;
   }
 
   /** Send queued messages. */
@@ -140,7 +142,7 @@ export class Socket extends EventEmitter {
 
     const message = JSON.stringify(data);
 
-    this._socket.send(message);
+    this._socket!.send(message);
   }
 
   close(): void {
